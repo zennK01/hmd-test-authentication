@@ -90,6 +90,11 @@ export class AuthService {
             throw new BadRequestException("invalid_request");
         }
 
+        const isInBlacklistToken = await this.userService.isTokenBlacklist(userId, refreshToken);
+        if(isInBlacklistToken){
+            throw new BadRequestException("invalid_request");
+        }
+
         try {
             await this.jwtService.verifyAsync(refreshToken, {
                 publicKey,
@@ -137,6 +142,13 @@ export class AuthService {
 
     async logOut(request: { userId: string }) {
         const { userId } = request;
+
+        const user = await this.userService.findOneUserById({userId});
+        if(!user){
+            throw new BadRequestException("user_not_found");
+        }
+
+        await this.userService.addToBlacklist({ userId, refreshToken: user.refreshToken, reason: 'logout' })
 
         await this.userService.updateUser({
             query: {

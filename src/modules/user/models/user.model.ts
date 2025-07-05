@@ -1,5 +1,6 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 import { UserRole, UserStatus } from '../enums';
+import { BlackListRefreshToken } from '../interfaces';
 
 @Table
 export class User extends Model {
@@ -26,4 +27,11 @@ export class User extends Model {
 
     @Column({ type: DataType.TEXT('long') })
     refreshToken: string;
+
+    @Column({ 
+        type: DataType.JSON,
+        allowNull: true,
+        defaultValue: []
+    })
+    blackListRefreshToken: Array<BlackListRefreshToken>
 }

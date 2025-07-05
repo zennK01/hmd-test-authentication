@@ -34,4 +34,27 @@ export class UserService {
         const updatedRefreshUser = await this.userRepository.findOneAndUpdate(query, updateData);
         return updatedRefreshUser;
     }
+
+    async addToBlacklist(params: { userId: string; refreshToken: string; reason: string }) {
+        const { userId, refreshToken, reason = 'logout' } = params;
+        const user = await this.userRepository.findOneUser({ id: userId });
+        if (!user) return;
+
+        const blacklistEntry = {
+            token: refreshToken,
+            reason
+        };
+
+        const currentBlacklist = user.blackListRefreshToken || [];
+        currentBlacklist.push(blacklistEntry);
+
+        return await this.userRepository.findOneAndUpdate({ id: userId }, { blackListRefreshToken: currentBlacklist })
+    }
+
+    async isTokenBlacklist(userId: string, refreshToken: string) {
+        const user = await this.userRepository.findOneUser({ id: userId });
+        if (!user || !user.blackListRefreshToken.length) return false;
+
+        return user.blackListRefreshToken.some((entry) => entry.token === refreshToken);
+    }
 }

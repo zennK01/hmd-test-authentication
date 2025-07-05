@@ -17,13 +17,13 @@ export class KeyTokenService {
 
             const accessToken = await this.jwtService.signAsync(payload, {
                 algorithm: "RS256",
-                expiresIn: "2 days",
+                expiresIn: 1 * 60 * 60, // seconds
                 privateKey
             })
 
             const refreshToken = await this.jwtService.signAsync(payload, {
                 algorithm: "RS256",
-                expiresIn: "3 days",
+                expiresIn: 10 * 60 * 60,
                 privateKey
             })
             return {
